@@ -1,0 +1,166 @@
+﻿<Window x:Class="MineSweeper.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
+        xmlns:l="http://schemas.livet-mvvm.net/2011/wpf"
+        xmlns:v="clr-namespace:MineSweeper.Views"
+        xmlns:vm="clr-namespace:MineSweeper.ViewModels"
+        Title="MineSweeper" SizeToContent="WidthAndHeight" ResizeMode="NoResize">
+    
+    <Window.DataContext>
+        <vm:MainWindowViewModel/>
+    </Window.DataContext>
+    
+    <i:Interaction.Triggers>
+    
+    	<!--Viewに特別な要件が存在しない限りは、トリガーやアクションの自作にこだわらず積極的にコードビハインドを使いましょう -->
+    	<!--Viewのコードビハインドは、基本的にView内で完結するロジックとViewModelからのイベントの受信(専用リスナを使用する)に限るとトラブルが少なくなります -->
+    	<!--Livet1.1からはコードビハインドでViewModelのイベントを受信するためのWeakEventLisnterサポートが追加されています --> 
+        
+        <!--WindowのContentRenderedイベントのタイミングでViewModelのInitializeメソッドが呼ばれます-->
+        <i:EventTrigger EventName="ContentRendered">
+            <l:LivetCallMethodAction MethodTarget="{Binding}" MethodName="Initialize"/>
+        </i:EventTrigger>
+
+        <!--Windowが閉じたタイミングでViewModelのDisposeメソッドが呼ばれます-->
+        <i:EventTrigger EventName="Closed">
+            <l:DataContextDisposeAction/>
+        </i:EventTrigger>
+
+        <!--WindowのCloseキャンセル処理に対応する場合は、WindowCloseCancelBehaviorの使用を検討してください-->
+        <l:InteractionMessageTrigger Messenger="{Binding Messenger}" MessageKey="Info">
+            <l:InformationDialogInteractionMessageAction/>
+        </l:InteractionMessageTrigger>
+    </i:Interaction.Triggers>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Border Padding="4" Grid.Column="0">
+                <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Foreground="Gray" Grid.Column="0">行:</TextBlock>
+                    <TextBox Text="{Binding Rows}" Grid.Column="1"></TextBox>
+                </Grid>
+            </Border>
+            <Border Padding="4" Grid.Column="1">
+                <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Foreground="Gray" Grid.Column="0">列:</TextBlock>
+                    <TextBox Text="{Binding Columns}" Grid.Column="1"></TextBox>
+                </Grid>
+            </Border>
+            <Border Padding="4" Grid.Column="2">
+                <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Foreground="Gray" Grid.Column="0">💣:</TextBlock>
+                    <TextBox Text="{Binding MineCount}" Grid.Column="1"></TextBox>
+                </Grid>
+            </Border>
+            <Border Padding="4" Grid.Column="3">
+                <Button>
+                    ニューゲーム
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <l:LivetCallMethodAction MethodTarget="{Binding}" MethodName="Reset"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+            </Border>
+        </Grid>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Border Padding="4" Grid.Column="0">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Foreground="Gray">残り:</TextBlock>
+                    <TextBlock Text="{Binding RemainMineCount}"></TextBlock>
+                </StackPanel>
+            </Border>
+            <Border Padding="4" Grid.Column="1">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Foreground="Gray">探索:</TextBlock>
+                    <CheckBox VerticalAlignment="Center" IsChecked="{Binding UseComplex}"></CheckBox>
+                </StackPanel>
+            </Border>
+            <Border Padding="4" Grid.Column="2">
+                <Button>
+                    ステップ▶
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <l:LivetCallMethodAction MethodTarget="{Binding}" MethodName="SolveOneStep"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+            </Border>
+            <Border Padding="4" Grid.Column="3">
+                <Button>
+                    ▶▶
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <l:LivetCallMethodAction MethodTarget="{Binding}" MethodName="Solve"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+            </Border>
+            <Border Padding="4" Grid.Column="4">
+                <Button>
+                    リトライ
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <l:LivetCallMethodAction MethodTarget="{Binding}" MethodName="Retry"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+            </Border>
+        </Grid>
+
+        <ItemsControl Grid.Row="2" Width="{Binding BoardWidth}" Height="{Binding BoardHeight}"
+                      Name="Board" ItemsSource="{Binding Cells}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Rows="{Binding BoardRows}" Columns="{Binding BoardColumns}"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <v:Cell NeighborMineCount="{Binding NeighborMineCount}" State="{Binding State}" ShowMine="{Binding ShowMine}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseRightButtonUp">
+                                <l:LivetCallMethodAction MethodTarget="{Binding}" MethodName="ToggleFlag" />
+                            </i:EventTrigger>
+                            <i:EventTrigger EventName="OnOpen">
+                                <l:LivetCallMethodAction MethodTarget="{Binding}" MethodName="Open" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </v:Cell>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
+</Window>
